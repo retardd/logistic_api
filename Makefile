@@ -1,6 +1,18 @@
 # Variables
 APP_NAME := inventory_service
+PROTO_SRC := proto                 # Папка с proto-файлами
+PROTO_OUT := internal/proto        # Папка для сгенерированных Go-файлов
 DOCKER_IMAGE := $(APP_NAME):latest
+
+# Install dependencies
+deps:
+    @echo "Installing dependencies..."
+    go mod tidy
+
+# Generate gRPC code from proto files
+generate:
+    @echo "Generating gRPC code from proto files..."
+    protoc -I=$(PROTO_SRC) --go_out=$(PROTO_OUT) --go-grpc_out=$(PROTO_OUT) $(PROTO_SRC)/*.proto
 
 # Run all tests
 test:
@@ -39,4 +51,4 @@ clean:
     docker rmi $(DOCKER_IMAGE)
 
 # Run all steps
-all: lint test build docker-build
+all: deps generate lint test build docker-build
